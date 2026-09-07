@@ -215,6 +215,17 @@
   </div>
 </div>
 
+<div class="container" style="margin-top:24px;">
+  <div class="card">
+    <div class="card-title" style="color:#3b82f6;">
+      ⚽ Jogadores por Posição
+    </div>
+    <p class="subtitle" style="margin-bottom:14px;">Montando aos poucos — hoje com 4 de 20 times. Os outros vêm nas próximas atualizações.</p>
+    <div id="time-tabs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
+    <div id="jogadores-lista"></div>
+  </div>
+</div>
+
 <div id="toast">Dados copiados com sucesso!</div>
 
 <script>
@@ -350,6 +361,84 @@
   }
 
   carregarDadosAoVivo(false);
+
+  // ---- Jogadores por posição (montando aos poucos, time por time) ----
+  const elencos = {
+    "Flamengo": {
+      Goleiros: ["Rossi", "Andrew", "Dyogo Alves"],
+      Zagueiros: ["Léo Ortiz", "Léo Pereira", "Vitão", "Danilo"],
+      Laterais: ["Guillermo Varela", "Ayrton Lucas", "Emerson Royal", "Alex Sandro"],
+      Meias: ["Erick Pulgar", "Saúl Ñíguez", "Giorgian de Arrascaeta", "Jorge Carrascal", "Nicolás de la Cruz", "Lucas Paquetá", "Jorginho"],
+      Atacantes: ["Pedro", "Luiz Araújo", "Everton", "Gonzalo Plata"]
+    },
+    "Palmeiras": {
+      Goleiros: ["Weverton", "Carlos Miguel", "Marcelo Lomba"],
+      Zagueiros: ["Bruno Fuchs", "Gustavo Gómez", "Murilo", "Benedetti"],
+      Laterais: ["Agustín Giay", "Khellven", "Piquerez", "Jefté"],
+      Meias: ["Allan", "Andreas Pereira", "Emiliano Martínez", "Felipe Anderson", "Lucas Evangelista", "Marlon Freitas", "Mauricio"],
+      Atacantes: ["Facundo Torres", "Flaco López", "Paulinho", "Ramón Sosa", "Vitor Roque"]
+    },
+    "Bahia": {
+      Goleiros: ["Ronaldo", "João Paulo"],
+      Zagueiros: ["Kanu", "Ramos Mingo", "Gabriel Xavier", "David Duarte", "Marcos Victor"],
+      Laterais: ["Gilberto", "Román Gómez", "Luciano Juba", "Iago Borduchi"],
+      Meias: ["Cauly", "Everton Ribeiro", "Rodrigo Nestor", "Caio Alexandre", "Jean Lucas", "Acevedo", "Michel Araújo"],
+      Atacantes: ["Cristian Olivera", "Ademir", "Erick Pulga"]
+    },
+    "Fluminense": {
+      Goleiros: ["Fábio", "Vitor Eudes", "Marcelo Pitaluga"],
+      Zagueiros: ["Ignácio", "Juan Freytes", "Jemmes", "Igor Rabello"],
+      Laterais: ["Samuel Xavier", "Guga", "Guilherme Arana", "Renê"],
+      Meias: ["Hércules", "Martinelli", "Nonato", "Facundo Bernal", "Otávio"],
+      Atacantes: ["Everaldo", "Keno", "Agustín Canobbio", "Jhon Arias"]
+    }
+  };
+
+  const ordemPosicoes = ["Goleiros", "Zagueiros", "Laterais", "Meias", "Atacantes"];
+  const corPosicao = { Goleiros: "#f59e0b", Zagueiros: "#3b82f6", Laterais: "#60a5fa", Meias: "#94a3b8", Atacantes: "#ef4444" };
+  const todosOsTimes = [...new Set([...dadosTimes.map(t => t.nome), ...Object.keys(elencos)])].sort();
+
+  let timeSelecionado = Object.keys(elencos)[0];
+
+  function renderizarTabsTimes() {
+    const tabs = document.getElementById('time-tabs');
+    tabs.innerHTML = todosOsTimes.map(nome => {
+      const disponivel = !!elencos[nome];
+      const ativo = nome === timeSelecionado;
+      return `<button onclick="${disponivel ? `selecionarTime('${nome.replace(/'/g, "\\'")}')` : ''}"
+        style="padding:6px 12px;border-radius:20px;border:1px solid ${disponivel ? '#334155' : '#1e293b'};
+        background:${ativo ? '#3b82f6' : '#1e293b'};color:${disponivel ? '#f8fafc' : '#475569'};
+        font-size:0.8rem;cursor:${disponivel ? 'pointer' : 'default'};">
+        ${nome}${disponivel ? '' : ' 🔒'}
+      </button>`;
+    }).join('');
+  }
+
+  function renderizarJogadores() {
+    const container = document.getElementById('jogadores-lista');
+    const elenco = elencos[timeSelecionado];
+    if (!elenco) {
+      container.innerHTML = `<p class="subtitle">Elenco do ${timeSelecionado} ainda não adicionado — chega em breve.</p>`;
+      return;
+    }
+    container.innerHTML = ordemPosicoes.map(pos => `
+      <div style="margin-bottom:12px;">
+        <div style="color:${corPosicao[pos]};font-weight:bold;font-size:0.85rem;margin-bottom:6px;">${pos}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${elenco[pos].map(nome => `<span style="background:#1e293b;border:1px solid #334155;border-radius:6px;padding:4px 10px;font-size:0.8rem;">${nome}</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selecionarTime(nome) {
+    timeSelecionado = nome;
+    renderizarTabsTimes();
+    renderizarJogadores();
+  }
+
+  renderizarTabsTimes();
+  renderizarJogadores();
 
   // ---- PWA: registro do service worker + botão de instalar ----
   if ('serviceWorker' in navigator) {
