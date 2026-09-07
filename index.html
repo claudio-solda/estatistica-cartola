@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Brasileirão 2026 - Pontuação</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Brasileirão 26">
+
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-blue: #3b82f6;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      padding-top: calc(20px + env(safe-area-inset-top));
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+    p.subtitle {
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+    .btn-copy {
+      background-color: var(--accent-amber);
+    }
+    .btn-copy:hover {
+      background-color: #d97706;
+    }
+    .grid-tables {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .grid-tables {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    }
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title.conquistados { color: var(--accent-amber); }
+    .card-title.cedidos { color: var(--accent-red); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #334155;
+    }
+    th {
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+    .val-highlight {
+      font-weight: bold;
+    }
+    #toast {
+      visibility: hidden;
+      min-width: 200px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 8px;
+      padding: 12px;
+      position: fixed;
+      z-index: 100;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+    }
+    #toast.show {
+      visibility: visible;
+      animation: fadein 0.3s, fadeout 0.3s 2.7s;
+    }
+    @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+    @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+
+    #install-btn {
+      display: none;
+      background-color: #334155;
+    }
+    #install-btn.show { display: flex; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Brasileirão 2026 — Desempenho & Pontuação</h1>
+    <p class="subtitle">Ranking de Pontos Conquistados e Pontos Cedidos (Gols Sofridos / Perdas)</p>
+  </header>
+
+  <div class="action-bar">
+    <button class="btn btn-copy" onclick="copiarRelatorio()">
+      📋 Copiar Dados da Tela
+    </button>
+    <button class="btn" id="install-btn" onclick="instalarApp()">
+      ⬇️ Instalar App
+    </button>
+  </div>
+
+  <div class="grid-tables">
+    <!-- Mais Conquistaram Pontos -->
+    <div class="card">
+      <div class="card-title conquistados">
+        📈 Mais Conquistaram Pontos (Top 10)
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Time</th>
+            <th>Jogos</th>
+            <th>Pontos</th>
+          </tr>
+        </thead>
+        <tbody id="tb-conquistados"></tbody>
+      </table>
+    </div>
+
+    <!-- Mais Cederam Pontos -->
+    <div class="card">
+      <div class="card-title cedidos">
+        📉 Mais Cederam Pontos (Top 10)
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Time</th>
+            <th>Derrotas</th>
+            <th>Pontos Cedidos</th>
+          </tr>
+        </thead>
+        <tbody id="tb-cedidos"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toast">Dados copiados com sucesso!</div>
+
+<script>
+  // Dados atualizados da Série A 2026
+  const dadosTimes = [
+    { nome: "Flamengo", pontos: 54, jogos: 26, derrotas: 4, pontosPerdidos: 24 },
+    { nome: "Palmeiras", pontos: 53, jogos: 26, derrotas: 3, pontosPerdidos: 25 },
+    { nome: "Athletico-PR", pontos: 45, jogos: 26, derrotas: 7, pontosPerdidos: 33 },
+    { nome: "Fluminense", pontos: 45, jogos: 26, derrotas: 5, pontosPerdidos: 33 },
+    { nome: "Bahia", pontos: 43, jogos: 26, derrotas: 5, pontosPerdidos: 35 },
+    { nome: "Cruzeiro", pontos: 42, jogos: 26, derrotas: 8, pontosPerdidos: 36 },
+    { nome: "Coritiba", pontos: 37, jogos: 26, derrotas: 9, pontosPerdidos: 41 },
+    { nome: "Atlético-MG", pontos: 36, jogos: 25, derrotas: 9, pontosPerdidos: 39 },
+    { nome: "Red Bull Bragantino", pontos: 35, jogos: 25, derrotas: 10, pontosPerdidos: 40 },
+    { nome: "São Paulo", pontos: 33, jogos: 25, derrotas: 10, pontosPerdidos: 42 },
+    { nome: "Corinthians", pontos: 32, jogos: 26, derrotas: 10, pontosPerdidos: 46 },
+    { nome: "Santos", pontos: 32, jogos: 25, derrotas: 9, pontosPerdidos: 43 },
+    { nome: "Botafogo", pontos: 31, jogos: 25, derrotas: 10, pontosPerdidos: 44 },
+    { nome: "Vitória", pontos: 29, jogos: 25, derrotas: 12, pontosPerdidos: 46 },
+    { nome: "Grêmio", pontos: 28, jogos: 24, derrotas: 10, pontosPerdidos: 44 },
+    { nome: "Mirassol", pontos: 28, jogos: 26, derrotas: 12, pontosPerdidos: 50 },
+    { nome: "Vasco da Gama", pontos: 25, jogos: 25, derrotas: 12, pontosPerdidos: 50 },
+    { nome: "Internacional", pontos: 25, jogos: 26, derrotas: 11, pontosPerdidos: 53 },
+    { nome: "Remo", pontos: 23, jogos: 26, derrotas: 13, pontosPerdidos: 55 },
+    { nome: "Chapecoense", pontos: 17, jogos: 25, derrotas: 14, pontosPerdidos: 58 }
+  ];
+
+  function renderizarTabelas() {
+    // Ordenar mais conquistados (descendente)
+    const conquistados = [...dadosTimes].sort((a, b) => b.pontos - a.pontos).slice(0, 10);
+    const tbConquistados = document.getElementById('tb-conquistados');
+    tbConquistados.innerHTML = conquistados.map((t, idx) => `
+      <tr>
+        <td>${idx + 1}º</td>
+        <td>${t.nome}</td>
+        <td>${t.jogos}</td>
+        <td class="val-highlight" style="color:#f59e0b">${t.pontos} pts</td>
+      </tr>
+    `).join('');
+
+    // Ordenar mais cederam pontos (descendente por pontos cedidos/perdidos)
+    const cedidos = [...dadosTimes].sort((a, b) => b.pontosPerdidos - a.pontosPerdidos).slice(0, 10);
+    const tbCedidos = document.getElementById('tb-cedidos');
+    tbCedidos.innerHTML = cedidos.map((t, idx) => `
+      <tr>
+        <td>${idx + 1}º</td>
+        <td>${t.nome}</td>
+        <td>${t.derrotas}</td>
+        <td class="val-highlight" style="color:#ef4444">${t.pontosPerdidos} pts</td>
+      </tr>
+    `).join('');
+  }
+
+  function copiarRelatorio() {
+    const conquistados = [...dadosTimes].sort((a, b) => b.pontos - a.pontos).slice(0, 5);
+    const cedidos = [...dadosTimes].sort((a, b) => b.pontosPerdidos - a.pontosPerdidos).slice(0, 5);
+
+    let texto = "📊 RELATÓRIO DE PONTUAÇÃO BRASILEIRÃO 2026\n\n";
+
+    texto += "📈 TOP 5 TIMES COM MAIS PONTOS CONQUISTADOS:\n";
+    conquistados.forEach((t, i) => {
+      texto += `${i + 1}. ${t.nome} - ${t.pontos} Pts (${t.jogos} jogos)\n`;
+    });
+
+    texto += "\n📉 TOP 5 TIMES QUE MAIS CEDERAM PONTOS:\n";
+    cedidos.forEach((t, i) => {
+      texto += `${i + 1}. ${t.nome} - ${t.pontosPerdidos} Pts Perdidos (${t.derrotas} derrotas)\n`;
+    });
+
+    navigator.clipboard.writeText(texto).then(() => {
+      mostrarToast();
+    }).catch(err => {
+      alert("Erro ao copiar dados: " + err);
+    });
+  }
+
+  function mostrarToast() {
+    const toast = document.getElementById("toast");
+    toast.className = "show";
+    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+  }
+
+  renderizarTabelas();
+
+  // ---- PWA: registro do service worker + botão de instalar ----
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(err => {
+        console.log('Falha ao registrar service worker:', err);
+      });
+    });
+  }
+
+  let deferredPrompt;
+  const installBtn = document.getElementById('install-btn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.classList.add('show');
+  });
+
+  function instalarApp() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      installBtn.classList.remove('show');
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    installBtn.classList.remove('show');
+  });
+</script>
+</body>
+</html>
