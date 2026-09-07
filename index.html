@@ -164,10 +164,14 @@
     <button class="btn btn-copy" onclick="copiarRelatorio()">
       📋 Copiar Dados da Tela
     </button>
+    <button class="btn" onclick="carregarDadosAoVivo(true)">
+      🔄 Atualizar Dados
+    </button>
     <button class="btn" id="install-btn" onclick="instalarApp()">
       ⬇️ Instalar App
     </button>
   </div>
+  <p id="status-dados" class="subtitle" style="text-align:center;margin-bottom:16px;"></p>
 
   <div class="grid-tables">
     <!-- Mais Conquistaram Pontos -->
@@ -180,8 +184,10 @@
           <tr>
             <th>#</th>
             <th>Time</th>
-            <th>Jogos</th>
+            <th>V-E-D</th>
+            <th>SG</th>
             <th>Pontos</th>
+            <th>Forma</th>
           </tr>
         </thead>
         <tbody id="tb-conquistados"></tbody>
@@ -200,6 +206,7 @@
             <th>Time</th>
             <th>Derrotas</th>
             <th>Pontos Cedidos</th>
+            <th>Forma</th>
           </tr>
         </thead>
         <tbody id="tb-cedidos"></tbody>
@@ -211,29 +218,40 @@
 <div id="toast">Dados copiados com sucesso!</div>
 
 <script>
-  // Dados atualizados da Série A 2026
-  const dadosTimes = [
-    { nome: "Flamengo", pontos: 54, jogos: 26, derrotas: 4, pontosPerdidos: 24 },
-    { nome: "Palmeiras", pontos: 53, jogos: 26, derrotas: 3, pontosPerdidos: 25 },
-    { nome: "Athletico-PR", pontos: 45, jogos: 26, derrotas: 7, pontosPerdidos: 33 },
-    { nome: "Fluminense", pontos: 45, jogos: 26, derrotas: 5, pontosPerdidos: 33 },
-    { nome: "Bahia", pontos: 43, jogos: 26, derrotas: 5, pontosPerdidos: 35 },
-    { nome: "Cruzeiro", pontos: 42, jogos: 26, derrotas: 8, pontosPerdidos: 36 },
-    { nome: "Coritiba", pontos: 37, jogos: 26, derrotas: 9, pontosPerdidos: 41 },
-    { nome: "Atlético-MG", pontos: 36, jogos: 25, derrotas: 9, pontosPerdidos: 39 },
-    { nome: "Red Bull Bragantino", pontos: 35, jogos: 25, derrotas: 10, pontosPerdidos: 40 },
-    { nome: "São Paulo", pontos: 33, jogos: 25, derrotas: 10, pontosPerdidos: 42 },
-    { nome: "Corinthians", pontos: 32, jogos: 26, derrotas: 10, pontosPerdidos: 46 },
-    { nome: "Santos", pontos: 32, jogos: 25, derrotas: 9, pontosPerdidos: 43 },
-    { nome: "Botafogo", pontos: 31, jogos: 25, derrotas: 10, pontosPerdidos: 44 },
-    { nome: "Vitória", pontos: 29, jogos: 25, derrotas: 12, pontosPerdidos: 46 },
-    { nome: "Grêmio", pontos: 28, jogos: 24, derrotas: 10, pontosPerdidos: 44 },
-    { nome: "Mirassol", pontos: 28, jogos: 26, derrotas: 12, pontosPerdidos: 50 },
-    { nome: "Vasco da Gama", pontos: 25, jogos: 25, derrotas: 12, pontosPerdidos: 50 },
-    { nome: "Internacional", pontos: 25, jogos: 26, derrotas: 11, pontosPerdidos: 53 },
-    { nome: "Remo", pontos: 23, jogos: 26, derrotas: 13, pontosPerdidos: 55 },
-    { nome: "Chapecoense", pontos: 17, jogos: 25, derrotas: 14, pontosPerdidos: 58 }
+  // Dados locais (usados como ponto de partida e como reserva se a busca ao vivo falhar)
+  let dadosTimes = [
+    { nome: "Flamengo", pontos: 54, jogos: 26, vitorias: 16, empates: 6, derrotas: 4, golsPro: 48, golsContra: 24, pontosPerdidos: 24, forma: [] },
+    { nome: "Palmeiras", pontos: 53, jogos: 26, vitorias: 16, empates: 5, derrotas: 3, golsPro: 46, golsContra: 25, pontosPerdidos: 25, forma: [] },
+    { nome: "Athletico-PR", pontos: 45, jogos: 26, vitorias: 13, empates: 6, derrotas: 7, golsPro: 40, golsContra: 33, pontosPerdidos: 33, forma: [] },
+    { nome: "Fluminense", pontos: 45, jogos: 26, vitorias: 12, empates: 9, derrotas: 5, golsPro: 38, golsContra: 30, pontosPerdidos: 33, forma: [] },
+    { nome: "Bahia", pontos: 43, jogos: 26, vitorias: 12, empates: 7, derrotas: 5, golsPro: 37, golsContra: 28, pontosPerdidos: 35, forma: [] },
+    { nome: "Cruzeiro", pontos: 42, jogos: 26, vitorias: 11, empates: 9, derrotas: 8, golsPro: 33, golsContra: 30, pontosPerdidos: 36, forma: [] },
+    { nome: "Coritiba", pontos: 37, jogos: 26, vitorias: 10, empates: 7, derrotas: 9, golsPro: 32, golsContra: 34, pontosPerdidos: 41, forma: [] },
+    { nome: "Atlético-MG", pontos: 36, jogos: 25, vitorias: 9, empates: 9, derrotas: 9, golsPro: 30, golsContra: 32, pontosPerdidos: 39, forma: [] },
+    { nome: "Red Bull Bragantino", pontos: 35, jogos: 25, vitorias: 9, empates: 8, derrotas: 10, golsPro: 30, golsContra: 34, pontosPerdidos: 40, forma: [] },
+    { nome: "São Paulo", pontos: 33, jogos: 25, vitorias: 8, empates: 9, derrotas: 10, golsPro: 28, golsContra: 32, pontosPerdidos: 42, forma: [] },
+    { nome: "Corinthians", pontos: 32, jogos: 26, vitorias: 8, empates: 10, derrotas: 10, golsPro: 27, golsContra: 33, pontosPerdidos: 46, forma: [] },
+    { nome: "Santos", pontos: 32, jogos: 25, vitorias: 8, empates: 9, derrotas: 9, golsPro: 27, golsContra: 32, pontosPerdidos: 43, forma: [] },
+    { nome: "Botafogo", pontos: 31, jogos: 25, vitorias: 7, empates: 10, derrotas: 10, golsPro: 26, golsContra: 32, pontosPerdidos: 44, forma: [] },
+    { nome: "Vitória", pontos: 29, jogos: 25, vitorias: 7, empates: 8, derrotas: 12, golsPro: 25, golsContra: 34, pontosPerdidos: 46, forma: [] },
+    { nome: "Grêmio", pontos: 28, jogos: 24, vitorias: 6, empates: 10, derrotas: 10, golsPro: 24, golsContra: 30, pontosPerdidos: 44, forma: [] },
+    { nome: "Mirassol", pontos: 28, jogos: 26, vitorias: 6, empates: 10, derrotas: 12, golsPro: 25, golsContra: 34, pontosPerdidos: 50, forma: [] },
+    { nome: "Vasco da Gama", pontos: 25, jogos: 25, vitorias: 5, empates: 10, derrotas: 12, golsPro: 22, golsContra: 32, pontosPerdidos: 50, forma: [] },
+    { nome: "Internacional", pontos: 25, jogos: 26, vitorias: 5, empates: 10, derrotas: 11, golsPro: 22, golsContra: 33, pontosPerdidos: 53, forma: [] },
+    { nome: "Remo", pontos: 23, jogos: 26, vitorias: 5, empates: 8, derrotas: 13, golsPro: 20, golsContra: 34, pontosPerdidos: 55, forma: [] },
+    { nome: "Chapecoense", pontos: 17, jogos: 25, vitorias: 3, empates: 8, derrotas: 14, golsPro: 18, golsContra: 36, pontosPerdidos: 58, forma: [] }
   ];
+
+  const LEAGUE_ID = 4351; // Brazilian Serie A no TheSportsDB
+  const API_KEY = 3; // chave pública gratuita de testes
+
+  function formaHtml(forma) {
+    if (!forma || !forma.length) return '<span style="color:#64748b">—</span>';
+    const cores = { W: '#f59e0b', D: '#94a3b8', L: '#ef4444' };
+    return forma.slice(-5).split('').map(r =>
+      `<span style="display:inline-block;width:18px;height:18px;line-height:18px;border-radius:4px;font-size:0.65rem;text-align:center;font-weight:bold;background:${cores[r] || '#334155'};color:#0f172a;margin-right:2px;">${r}</span>`
+    ).join('');
+  }
 
   function renderizarTabelas() {
     // Ordenar mais conquistados (descendente)
@@ -243,8 +261,10 @@
       <tr>
         <td>${idx + 1}º</td>
         <td>${t.nome}</td>
-        <td>${t.jogos}</td>
+        <td>${t.vitorias}-${t.empates}-${t.derrotas}</td>
+        <td>${t.golsPro - t.golsContra >= 0 ? '+' : ''}${t.golsPro - t.golsContra}</td>
         <td class="val-highlight" style="color:#f59e0b">${t.pontos} pts</td>
+        <td>${formaHtml(t.forma)}</td>
       </tr>
     `).join('');
 
@@ -257,8 +277,47 @@
         <td>${t.nome}</td>
         <td>${t.derrotas}</td>
         <td class="val-highlight" style="color:#ef4444">${t.pontosPerdidos} pts</td>
+        <td>${formaHtml(t.forma)}</td>
       </tr>
     `).join('');
+  }
+
+  async function carregarDadosAoVivo(manual) {
+    const status = document.getElementById('status-dados');
+    if (manual) status.textContent = '🔄 Buscando dados ao vivo...';
+    try {
+      const resp = await fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/lookuptable.php?l=${LEAGUE_ID}&s=2026`);
+      if (!resp.ok) throw new Error('Falha na resposta da API');
+      const data = await resp.json();
+      if (!data.table || !data.table.length) throw new Error('Tabela vazia');
+
+      dadosTimes = data.table.map(t => {
+        const jogos = parseInt(t.intPlayed) || 0;
+        const pontos = parseInt(t.intPoints) || 0;
+        return {
+          nome: t.strTeam,
+          pontos: pontos,
+          jogos: jogos,
+          vitorias: parseInt(t.intWin) || 0,
+          empates: parseInt(t.intDraw) || 0,
+          derrotas: parseInt(t.intLoss) || 0,
+          golsPro: parseInt(t.intGoalsFor) || 0,
+          golsContra: parseInt(t.intGoalsAgainst) || 0,
+          pontosPerdidos: jogos * 3 - pontos,
+          forma: t.strForm || ''
+        };
+      });
+
+      renderizarTabelas();
+      const agora = new Date().toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+      status.textContent = `✅ Dados ao vivo atualizados às ${agora}`;
+    } catch (err) {
+      console.log('Não foi possível buscar dados ao vivo:', err);
+      renderizarTabelas();
+      status.textContent = manual
+        ? '📴 Não consegui buscar dados ao vivo agora — mostrando dados locais'
+        : '📴 Mostrando dados locais (toque em Atualizar para tentar buscar ao vivo)';
+    }
   }
 
   function copiarRelatorio() {
@@ -290,7 +349,7 @@
     setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
   }
 
-  renderizarTabelas();
+  carregarDadosAoVivo(false);
 
   // ---- PWA: registro do service worker + botão de instalar ----
   if ('serviceWorker' in navigator) {
