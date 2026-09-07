@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brasileirao-2026-v1';
+const CACHE_NAME = 'brasileirao-2026-v2';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -27,6 +27,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Chamadas de API externas (dados ao vivo) sempre vão direto pra rede, sem cache
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return (
