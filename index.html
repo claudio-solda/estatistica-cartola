@@ -220,7 +220,7 @@
     <div class="card-title" style="color:#3b82f6;">
       ⚽ Jogadores por Posição
     </div>
-    <p class="subtitle" style="margin-bottom:14px;">Montando aos poucos — hoje com 10 de 20 times. Os outros vêm nas próximas atualizações.</p>
+    <p class="subtitle" style="margin-bottom:14px;">Montando aos poucos — hoje com 13 de 20 times. Os outros vêm nas próximas atualizações.</p>
     <div id="time-tabs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
     <div id="jogadores-lista"></div>
   </div>
@@ -433,6 +433,27 @@
       Laterais: ["Alex Telles"],
       Meias: ["Edenilson", "Jordan Barrera"],
       Atacantes: ["Danilo", "Kauan Toledo"]
+    },
+    "Internacional": {
+      Goleiros: ["Sergio Rochet", "Anthoni", "Diego Esser"],
+      Zagueiros: ["Guillermo Maripán", "Félix Torres", "Gabriel Mercado", "Juninho", "Victor Gabriel"],
+      Laterais: ["Bernabei", "Braian Aguirre", "Bruno Gomes", "Matheus Bahia"],
+      Meias: ["Alan Patrick", "Bruno Henrique", "Calebe", "Niclas Eliasson", "Paulinho"],
+      Atacantes: ["Alerrandro", "Johan Carbonero", "Kayky", "Sanabria", "Vitinho"]
+    },
+    "Vasco da Gama": {
+      Goleiros: ["Léo Jardim"],
+      Zagueiros: ["Carlos Cuesta", "Andrés Saldivia"],
+      Laterais: ["Puma Rodríguez", "Piero Henrique"],
+      Meias: ["Jair", "Thiago Mendes", "Lucas Zuccarello"],
+      Atacantes: ["Andrés Gómez", "Claudio Spinelli", "Johan Rojas"]
+    },
+    "Cruzeiro": {
+      Goleiros: ["Cássio", "Matheus Cunha"],
+      Zagueiros: ["Fabrício Bruno"],
+      Laterais: [],
+      Meias: ["Lucas Romero", "Matheus Pereira", "Gerson", "Christian"],
+      Atacantes: ["Kaio Jorge", "Gabigol", "Néiser Villarreal", "Chico da Costa"]
     }
   };
 
@@ -467,7 +488,9 @@
       <div style="margin-bottom:12px;">
         <div style="color:${corPosicao[pos]};font-weight:bold;font-size:0.85rem;margin-bottom:6px;">${pos}</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${elenco[pos].map(nome => `<span style="background:#1e293b;border:1px solid #334155;border-radius:6px;padding:4px 10px;font-size:0.8rem;">${nome}</span>`).join('')}
+          ${elenco[pos] && elenco[pos].length
+            ? elenco[pos].map(nome => `<span style="background:#1e293b;border:1px solid #334155;border-radius:6px;padding:4px 10px;font-size:0.8rem;">${nome}</span>`).join('')
+            : '<span style="color:#475569;font-size:0.8rem;">— ainda não confirmado —</span>'}
         </div>
       </div>
     `).join('');
