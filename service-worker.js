@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brasileirao-2026-v2';
+const CACHE_NAME = 'brasileirao-2026-v3';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -30,6 +30,28 @@ self.addEventListener('fetch', (event) => {
   // Chamadas de API externas (dados ao vivo) sempre vão direto pra rede, sem cache
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) {
+    return;
+  }
+
+self.addEventListener('fetch', (event) => {
+  // Chamadas de API externas (dados ao vivo) sempre vão direto pra rede, sem cache
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // HTML sempre busca versão nova da rede primeiro; cache só é reserva se estiver offline
+  const isHTML = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/';
+  if (isHTML) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
     return;
   }
 
