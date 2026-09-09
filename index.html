@@ -268,6 +268,26 @@
   </div>
 </div>
 
+<div class="container" style="margin-top:24px;">
+  <div class="card">
+    <div class="card-title" style="color:#f59e0b;">
+      🎮 Ranking de Meias Ofensivos — Cartola FC
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Jogador</th>
+          <th>Time</th>
+          <th>Média</th>
+        </tr>
+      </thead>
+      <tbody id="tb-meias-cartola"></tbody>
+    </table>
+    <p class="subtitle" id="destaques-meias-cartola" style="margin-top:14px;line-height:1.6;"></p>
+  </div>
+</div>
+
 <div id="toast">Dados copiados com sucesso!</div>
 
 <script>
@@ -650,6 +670,33 @@
   }
 
   renderizarVisitantesVazados();
+
+  // ---- Cartola: Ranking de Meias Ofensivos ----
+  const meiasOfensivosCartola = [
+    { nome: "Jhon Arias", time: "Palmeiras", media: 7.52, destaque: "Alto volume de finalizações, assistências e faltas sofridas no ataque do Palmeiras." },
+    { nome: "Matheus Pereira", time: "Cruzeiro", media: 6.80, destaque: "Cobrador de bolas paradas, alto índice de assistências e passes para chute." },
+    { nome: "Arrascaeta", time: "Flamengo", media: 7.10, destaque: "Alto teto de pontos, presença na área para gols e passes decisivos." },
+    { nome: "Alan Patrick", time: "Internacional", media: 6.50, destaque: "Cobrador de pênaltis, finalizações de média distância e assistências." },
+    { nome: "Danilo", time: "Botafogo", media: 7.80, destaque: "Meia de chegada à área, participativo em finalizações e gols." }
+  ];
+
+  function renderizarMeiasCartola() {
+    const tb = document.getElementById('tb-meias-cartola');
+    tb.innerHTML = meiasOfensivosCartola.map((j, idx) => `
+      <tr>
+        <td>${idx + 1}º</td>
+        <td>${j.nome}</td>
+        <td>${j.time}</td>
+        <td class="val-highlight" style="color:#f59e0b">~${j.media} pts</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('destaques-meias-cartola').innerHTML = meiasOfensivosCartola
+      .map(j => `<strong style="color:#f8fafc">${j.nome}:</strong> ${j.destaque}`)
+      .join('<br><br>');
+  }
+
+  renderizarMeiasCartola();
 
   // ---- PWA: registro do service worker + botão de instalar ----
   if ('serviceWorker' in navigator) {
