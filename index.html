@@ -247,6 +247,27 @@
   </div>
 </div>
 
+<div class="container" style="margin-top:24px;">
+  <div class="card">
+    <div class="card-title" style="color:#ef4444;">
+      🎯 Visitantes que Mais Cedem para MEI e ATA
+    </div>
+    <p class="subtitle" style="margin-bottom:14px;">Times fora de casa com defesa mais vazada — bons alvos pra escalar meias e atacantes adversários no Cartola.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Time</th>
+          <th>Gols sofridos fora</th>
+          <th>Média</th>
+        </tr>
+      </thead>
+      <tbody id="tb-visitantes-vazados"></tbody>
+    </table>
+    <p class="subtitle" id="perfis-visitantes-vazados" style="margin-top:14px;line-height:1.6;"></p>
+  </div>
+</div>
+
 <div id="toast">Dados copiados com sucesso!</div>
 
 <script>
@@ -602,6 +623,33 @@
   }
 
   renderizarDesarmadores();
+
+  // ---- Cartola: Visitantes que mais cedem para MEI e ATA ----
+  const visitantesVazados = [
+    { time: "Vitória", golsSofridos: 28, jogos: 13, media: 2.15, perfil: "Pior defesa visitante. Cede alto volume de finalizações e gols para pontas e centroavantes." },
+    { time: "Remo", golsSofridos: 26, jogos: 13, media: 2.0, perfil: "Cede muitas faltas sofridas e assistências por erros de marcação nas alas." },
+    { time: "Chapecoense", golsSofridos: 23, jogos: 13, media: 1.77, perfil: "Marcação frouxa na entrada da área, favorecendo meias com chute de média distância." },
+    { time: "Botafogo", golsSofridos: 23, jogos: 13, media: 1.76, perfil: "Deixa espaços no contra-ataque para atacantes velozes." },
+    { time: "Vasco da Gama", golsSofridos: 22, jogos: 12, media: 1.83, perfil: "Não venceu fora e cede alto volume de finalizações dentro da área para camisas 9." }
+  ];
+
+  function renderizarVisitantesVazados() {
+    const tb = document.getElementById('tb-visitantes-vazados');
+    tb.innerHTML = visitantesVazados.map((t, idx) => `
+      <tr>
+        <td>${idx + 1}º</td>
+        <td>${t.time}</td>
+        <td class="val-highlight" style="color:#ef4444">${t.golsSofridos} em ${t.jogos} jogos</td>
+        <td>${t.media}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('perfis-visitantes-vazados').innerHTML = visitantesVazados
+      .map(t => `<strong style="color:#f8fafc">${t.time}:</strong> ${t.perfil}`)
+      .join('<br><br>');
+  }
+
+  renderizarVisitantesVazados();
 
   // ---- PWA: registro do service worker + botão de instalar ----
   if ('serviceWorker' in navigator) {
