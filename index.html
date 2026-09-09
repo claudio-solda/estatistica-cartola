@@ -226,6 +226,27 @@
   </div>
 </div>
 
+<div class="container" style="margin-top:24px;">
+  <div class="card">
+    <div class="card-title" style="color:#60a5fa;">
+      🛡️ Top Desarmadores — Laterais
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Jogador</th>
+          <th>Time</th>
+          <th>Des./Jogo</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="tb-desarmadores"></tbody>
+    </table>
+    <p class="subtitle" id="estilos-desarmadores" style="margin-top:14px;line-height:1.6;"></p>
+  </div>
+</div>
+
 <div id="toast">Dados copiados com sucesso!</div>
 
 <script>
@@ -553,6 +574,34 @@
 
   renderizarTabsTimes();
   renderizarJogadores();
+
+  // ---- Estatísticas: Top Desarmadores entre Laterais ----
+  const topDesarmadoresLaterais = [
+    { nome: "Juninho Capixaba", time: "Red Bull Bragantino", porJogo: 2.8, total: 58, estilo: "Pressão alta, roubadas no meio e apoia bastante ao ataque." },
+    { nome: "Lucas Esquivel", time: "Athletico-PR", porJogo: 2.6, total: 52, estilo: "Solidez defensiva, forte nos duelos individuais na esquerda." },
+    { nome: "Matheus Bidu", time: "Corinthians", porJogo: 2.5, total: 48, estilo: "Agressivo na marcação, combate intenso e presença ofensiva." },
+    { nome: "Igor Formiga", time: "Mirassol", porJogo: 2.3, total: 45, estilo: "Corredor direito, desarme rápido na recomposição." },
+    { nome: "Renê", time: "Internacional", porJogo: 2.1, total: 42, estilo: "Presença posicional, combate na linha defensiva." }
+  ];
+
+  function renderizarDesarmadores() {
+    const tb = document.getElementById('tb-desarmadores');
+    tb.innerHTML = topDesarmadoresLaterais.map((j, idx) => `
+      <tr>
+        <td>${idx + 1}º</td>
+        <td>${j.nome}</td>
+        <td>${j.time}</td>
+        <td class="val-highlight" style="color:#60a5fa">${j.porJogo}</td>
+        <td>${j.total}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('estilos-desarmadores').innerHTML = topDesarmadoresLaterais
+      .map(j => `<strong style="color:#f8fafc">${j.nome}:</strong> ${j.estilo}`)
+      .join('<br><br>');
+  }
+
+  renderizarDesarmadores();
 
   // ---- PWA: registro do service worker + botão de instalar ----
   if ('serviceWorker' in navigator) {
