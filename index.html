@@ -291,14 +291,15 @@
 <div class="container" style="margin-top:24px;">
   <div class="card">
     <div class="card-title" style="color:#ef4444;">
-      🚪 Quem Cede Pontos Fora de Casa
+      🚪 Quem Cede Pontos por Posição
     </div>
-    <p class="subtitle" style="margin-bottom:14px;">Quando esses times jogam como visitantes, cedem pontuação para estas posições — bons alvos pra escalar no Cartola.</p>
+    <p class="subtitle" style="margin-bottom:14px;">Posições que mais pontuam contra esses times, conforme o mando de campo — bons alvos pra escalar no Cartola.</p>
+    <div id="filtro-cedem-mando" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
     <div id="filtro-cedem-posicao" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
     <table>
       <thead>
         <tr>
-          <th>Time (fora de casa)</th>
+          <th id="th-cedem-time">Time (fora de casa)</th>
           <th>Cede pontos para</th>
         </tr>
       </thead>
@@ -726,16 +727,34 @@
     { time: "Santos", itens: [ { cat: "Meia", rotulo: "Meias" }, { cat: "Centroavante", rotulo: "Centroavante" } ] },
     { time: "Cruzeiro", itens: [ { cat: "Meia", rotulo: "Meias" }, { cat: "Atacante", rotulo: "Atacantes" } ] }
   ];
+  const cedemEmCasaPorPosicao = [
+    { time: "Chapecoense", itens: [ { cat: "Atacante", rotulo: "Atacante (lado direito)" }, { cat: "Meia", rotulo: "Meia (lado esquerdo)" } ] }
+  ];
   const categoriasCedem = ["Todas", "Zagueiro", "Lateral", "Meia", "Atacante", "Centroavante"];
   const corCategoriaCedem = { Zagueiro: "#3b82f6", Lateral: "#60a5fa", Meia: "#f59e0b", Atacante: "#a78bfa", Centroavante: "#ef4444" };
   let filtroCedem = "Todas";
+  let mandoCedem = "fora";
 
   function selecionarFiltroCedem(cat) {
     filtroCedem = cat;
     renderizarCedemFora();
   }
 
+  function selecionarMandoCedem(mando) {
+    mandoCedem = mando;
+    renderizarCedemFora();
+  }
+
   function renderizarCedemFora() {
+    const mandos = [ { id: "fora", nome: "Fora de casa" }, { id: "casa", nome: "Em casa" } ];
+    document.getElementById('filtro-cedem-mando').innerHTML = mandos.map(m => {
+      const ativo = m.id === mandoCedem;
+      return `<button onclick="selecionarMandoCedem('${m.id}')"
+        style="padding:8px 16px;border-radius:8px;border:1px solid ${ativo ? '#f59e0b' : '#334155'};
+        background:${ativo ? '#f59e0b' : 'transparent'};color:${ativo ? '#0f172a' : '#f8fafc'};font-size:0.85rem;font-weight:700;cursor:pointer;">${m.nome}</button>`;
+    }).join('');
+    document.getElementById('th-cedem-time').textContent = mandoCedem === "fora" ? "Time (fora de casa)" : "Time (em casa)";
+
     const filtro = document.getElementById('filtro-cedem-posicao');
     filtro.innerHTML = categoriasCedem.map(cat => {
       const ativo = cat === filtroCedem;
@@ -744,7 +763,8 @@
         background:${ativo ? '#3b82f6' : 'transparent'};color:#f8fafc;font-size:0.8rem;font-weight:600;cursor:pointer;">${cat}</button>`;
     }).join('');
 
-    const linhas = cedemForaPorPosicao.filter(t => filtroCedem === "Todas" || t.itens.some(i => i.cat === filtroCedem));
+    const lista = mandoCedem === "fora" ? cedemForaPorPosicao : cedemEmCasaPorPosicao;
+    const linhas = lista.filter(t => filtroCedem === "Todas" || t.itens.some(i => i.cat === filtroCedem));
     const tb = document.getElementById('tb-cedem-fora');
     tb.innerHTML = linhas.map(t => `
       <tr>
@@ -757,6 +777,9 @@
         }).join('')}</td>
       </tr>
     `).join('');
+    if (!linhas.length) {
+      tb.innerHTML = '<tr><td colspan="2" style="color:#94a3b8">Nenhum time cadastrado para essa posição.</td></tr>';
+    }
   }
 
   renderizarCedemFora();
