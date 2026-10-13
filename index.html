@@ -288,6 +288,25 @@
   </div>
 </div>
 
+<div class="container" style="margin-top:24px;">
+  <div class="card">
+    <div class="card-title" style="color:#ef4444;">
+      🚪 Quem Cede Pontos Fora de Casa
+    </div>
+    <p class="subtitle" style="margin-bottom:14px;">Quando esses times jogam como visitantes, cedem pontuação para estas posições — bons alvos pra escalar no Cartola.</p>
+    <div id="filtro-cedem-posicao" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Time (fora de casa)</th>
+          <th>Cede pontos para</th>
+        </tr>
+      </thead>
+      <tbody id="tb-cedem-fora"></tbody>
+    </table>
+  </div>
+</div>
+
 <div id="toast">Dados copiados com sucesso!</div>
 
 <script>
@@ -697,6 +716,50 @@
   }
 
   renderizarMeiasCartola();
+
+  // ---- Cartola: Times que cedem pontos fora de casa, por posição ----
+  const cedemForaPorPosicao = [
+    { time: "Remo", itens: [ { cat: "Zagueiro", rotulo: "Zagueiro (lado direito)" }, { cat: "Meia", rotulo: "Meias" } ] },
+    { time: "Corinthians", itens: [ { cat: "Lateral", rotulo: "Lateral direito" } ] },
+    { time: "Fluminense", itens: [ { cat: "Meia", rotulo: "Meias" } ] },
+    { time: "Vitória", itens: [ { cat: "Centroavante", rotulo: "Centroavante" } ] },
+    { time: "Santos", itens: [ { cat: "Meia", rotulo: "Meias" }, { cat: "Centroavante", rotulo: "Centroavante" } ] },
+    { time: "Cruzeiro", itens: [ { cat: "Meia", rotulo: "Meias" }, { cat: "Atacante", rotulo: "Atacantes" } ] }
+  ];
+  const categoriasCedem = ["Todas", "Zagueiro", "Lateral", "Meia", "Atacante", "Centroavante"];
+  const corCategoriaCedem = { Zagueiro: "#3b82f6", Lateral: "#60a5fa", Meia: "#f59e0b", Atacante: "#a78bfa", Centroavante: "#ef4444" };
+  let filtroCedem = "Todas";
+
+  function selecionarFiltroCedem(cat) {
+    filtroCedem = cat;
+    renderizarCedemFora();
+  }
+
+  function renderizarCedemFora() {
+    const filtro = document.getElementById('filtro-cedem-posicao');
+    filtro.innerHTML = categoriasCedem.map(cat => {
+      const ativo = cat === filtroCedem;
+      return `<button onclick="selecionarFiltroCedem('${cat}')"
+        style="padding:6px 12px;border-radius:999px;border:1px solid ${ativo ? '#3b82f6' : '#334155'};
+        background:${ativo ? '#3b82f6' : 'transparent'};color:#f8fafc;font-size:0.8rem;font-weight:600;cursor:pointer;">${cat}</button>`;
+    }).join('');
+
+    const linhas = cedemForaPorPosicao.filter(t => filtroCedem === "Todas" || t.itens.some(i => i.cat === filtroCedem));
+    const tb = document.getElementById('tb-cedem-fora');
+    tb.innerHTML = linhas.map(t => `
+      <tr>
+        <td><strong>${t.time}</strong></td>
+        <td>${t.itens.map(i => {
+          const destaque = filtroCedem === "Todas" || i.cat === filtroCedem;
+          const cor = corCategoriaCedem[i.cat];
+          return `<span style="display:inline-block;margin:2px 4px 2px 0;padding:3px 10px;border-radius:999px;font-size:0.8rem;font-weight:600;
+            color:${cor};border:1px solid ${cor};opacity:${destaque ? 1 : 0.35};">${i.rotulo}</span>`;
+        }).join('')}</td>
+      </tr>
+    `).join('');
+  }
+
+  renderizarCedemFora();
 
   // ---- PWA: registro do service worker + botão de instalar ----
   if ('serviceWorker' in navigator) {
